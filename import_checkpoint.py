@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Import the exact user-approved GLM v6 checkpoint, offline, without executing its code."""
 import argparse
+from contextlib import closing
 import hashlib
 import json
 from pathlib import Path, PurePosixPath
@@ -69,7 +70,7 @@ def main():
                 path.write_bytes(data)
                 manifest[name] = digest(data)
         db = stage / RUNTIME / "knowledge.db"
-        with sqlite3.connect(db.resolve().as_uri() + "?mode=ro", uri=True) as conn:
+        with closing(sqlite3.connect(db.resolve().as_uri() + "?mode=ro", uri=True)) as conn:
             integrity = conn.execute("PRAGMA integrity_check").fetchone()[0]
             count = conn.execute("SELECT COUNT(*) FROM knowledge").fetchone()[0]
         if integrity != "ok" or count != 1431:
